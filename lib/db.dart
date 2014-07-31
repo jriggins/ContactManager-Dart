@@ -7,42 +7,42 @@ import "package:uuid/uuid_server.dart";
 import "package:contactManager/model.dart";
 
 abstract class DbStrategy {
-  Future<Customer> saveCustomer(Customer customer);
-  Future<Customer> findCustomer(String customerId);
-  Stream<Customer> findCustomers();
-  Future<Customer> findCustomerByName(String customerName);
+  Future<Contact> saveContact(Contact contact);
+  Future<Contact> findContact(String contactId);
+  Stream<Contact> findContacts();
+  Future<Contact> findContactByName(String contactName);
 }
 
 class MemoryStrategy implements DbStrategy {
 
-  List<Customer> customerList = [];
+  List<Contact> contactList = [];
   
   @override
-  Future<Customer> saveCustomer(Customer customer) {
-    var newCustomerId = new Uuid().v4();
-    var newCustomer = new Customer.newCustomer(newCustomerId, customer);
-    customerList.add(newCustomer);
-    return new Future.value(newCustomer);
+  Future<Contact> saveContact(Contact contact) {
+    var newContactId = new Uuid().v4();
+    var newContact = new Contact.newContact(newContactId, contact);
+    contactList.add(newContact);
+    return new Future.value(newContact);
   }
   
   @override
-  Future<Customer> findCustomer(String customerId) {
-    var foundCustomer = customerList.firstWhere((customer) => 
-        customer.id == customerId);
-    return new Future.value(foundCustomer);
+  Future<Contact> findContact(String contactId) {
+    var foundContact = contactList.firstWhere((contact) => 
+        contact.id == contactId);
+    return new Future.value(foundContact);
   }
 
   @override
-  Stream<Customer> findCustomers() {
-    var stream = new Stream.fromIterable(customerList);
+  Stream<Contact> findContacts() {
+    var stream = new Stream.fromIterable(contactList);
     return stream;
   }
   
   @override
-  Future<Customer> findCustomerByName(String customerName) {
-    var foundCustomer = customerList.firstWhere((customer) => 
-        customer.name.toLowerCase().contains(customerName.toLowerCase()));
-    return new Future.value(foundCustomer);
+  Future<Contact> findContactByName(String contactName) {
+    var foundContact = contactList.firstWhere((contact) => 
+        contact.name.toLowerCase().contains(contactName.toLowerCase()));
+    return new Future.value(foundContact);
   }
 
 }
@@ -54,19 +54,19 @@ class Repository {
     _dbStrategy = dbStrategy;
   }
   
-  Future<Customer> saveCustomer(Customer customer) {
-    return _dbStrategy.saveCustomer(customer);
+  Future<Contact> saveContact(Contact contact) {
+    return _dbStrategy.saveContact(contact);
   }
   
-  Future<Customer> findCustomer(String customerId) {
-    return _dbStrategy.findCustomer(customerId);   
+  Future<Contact> findContact(String contactId) {
+    return _dbStrategy.findContact(contactId);   
   }
   
-  Stream<Customer> findCustomers() {
-    return _dbStrategy.findCustomers();
+  Stream<Contact> findContacts() {
+    return _dbStrategy.findContacts();
   }
   
-  Future<Customer> findCustomerByName(String customerName) {
-    return _dbStrategy.findCustomerByName(customerName);
+  Future<Contact> findContactByName(String contactName) {
+    return _dbStrategy.findContactByName(contactName);
   }
 }

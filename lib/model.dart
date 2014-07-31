@@ -1,6 +1,6 @@
 library model;
 
-class Customer
+class Contact
 {
   String _id;
   String get id => _id;
@@ -8,13 +8,13 @@ class Customer
   String lastName;
   String get name => "$firstName $lastName";
   
-  Customer(this.firstName, this.lastName); 
+  Contact(this.firstName, this.lastName); 
 
-  factory Customer.newCustomer(String id, Customer customer)
+  factory Contact.newContact(String id, Contact customer)
   {
-    var newCustomer = new Customer(customer.firstName, customer.lastName);
-    newCustomer._id = id;
+    var newContact = new Contact(customer.firstName, customer.lastName);
+    newContact._id = id;
 
-    return newCustomer;
+    return newContact;
   }
 }
