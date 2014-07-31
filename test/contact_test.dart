@@ -81,15 +81,18 @@ void main() {
 
           List<Contact> foundContacts;
 
-          return bulkLoadContacts(5, repository)
+          var numContacts = 5120;
+
+          return bulkLoadContacts(numContacts, repository)
             .then((List<Contact> results) {
               foundContacts = results;
               return repository.findContacts();
             }).then((contacts) {
-              expect(contacts, isNotNull);
               return contacts.toList();
             }).then((contactsAsList) {
-              expect(contactsAsList[2].id, foundContacts[2].id);
+              expect(contactsAsList.length, numContacts);
+              expect(contactsAsList[1049].id, foundContacts[1049].id);
+              expect(contactsAsList[5000].id, isNot(foundContacts[5].id));
             });
         });  
 
