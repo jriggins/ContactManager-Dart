@@ -6,6 +6,22 @@ import "package:contactManager/db.dart";
 import "package:contactManager/model.dart";
 
 void main() {
+  Future<List<Contact>> bulkLoadContacts(int count, Repository repository) {
+
+// Takes the place of something like:
+//          return Future.wait([
+//            repository.saveContact(new Contact("Test", "User1")),
+//            repository.saveContact(new Contact("Test", "User2")),
+//            repository.saveContact(new Contact("Test", "User3")),
+//            repository.saveContact(new Contact("Test", "User4")),
+//            repository.saveContact(new Contact("Test", "User5"))
+//          ], eagerError: true)
+
+    return Future.wait(new List.generate(count, (index) => 
+        repository.saveContact(new Contact("Test", "User${index + 1}"))), 
+        eagerError: true);
+  }
+
   group("Contact Model", () {
     test("Initialize", () {
       var contact = new Contact("Test", "User");
@@ -48,19 +64,15 @@ void main() {
           var repository = new Repository(memoryStrategy);
 
           List<Contact> foundContacts;
-          return Future.wait([
-            repository.saveContact(new Contact("Test", "User1")),
-            repository.saveContact(new Contact("Test", "User2")),
-            repository.saveContact(new Contact("Test", "User3")),
-            repository.saveContact(new Contact("Test", "User4")),
-            repository.saveContact(new Contact("Test", "User5"))
-          ], eagerError: true).then((List<Contact> results) {
-            foundContacts = results;
-            return repository.findContact(results[3].id);  
-          }).then((contact) {
-            expect(contact.id, isNotNull);
-            expect(contact.id, foundContacts[3].id);
-          });
+
+          return bulkLoadContacts(5, repository)
+            .then((List<Contact> results) {
+              foundContacts = results;
+              return repository.findContact(results[3].id);  
+            }).then((contact) {
+              expect(contact.id, isNotNull);
+              expect(contact.id, foundContacts[3].id);
+            });
         });  
 
         test("All Contacts", () {
@@ -68,21 +80,17 @@ void main() {
           var repository = new Repository(memoryStrategy);
 
           List<Contact> foundContacts;
-          return Future.wait([
-            repository.saveContact(new Contact("Test", "User1")),
-            repository.saveContact(new Contact("Test", "User2")),
-            repository.saveContact(new Contact("Test", "User3")),
-            repository.saveContact(new Contact("Test", "User4")),
-            repository.saveContact(new Contact("Test", "User5"))
-          ], eagerError: true).then((List<Contact> results) {
-            foundContacts = results;
-            return repository.findContacts();
-          }).then((contacts) {
-            expect(contacts, isNotNull);
-            return contacts.toList();
-          }).then((contactsAsList) {
-            expect(contactsAsList[2].id, foundContacts[2].id);
-          });
+
+          return bulkLoadContacts(5, repository)
+            .then((List<Contact> results) {
+              foundContacts = results;
+              return repository.findContacts();
+            }).then((contacts) {
+              expect(contacts, isNotNull);
+              return contacts.toList();
+            }).then((contactsAsList) {
+              expect(contactsAsList[2].id, foundContacts[2].id);
+            });
         });  
 
         test("Find Contact by Name", () {
@@ -90,19 +98,15 @@ void main() {
           var repository = new Repository(memoryStrategy);
 
           List<Contact> foundContacts;
-          return Future.wait([
-            repository.saveContact(new Contact("Test", "User1")),
-            repository.saveContact(new Contact("Test", "User2")),
-            repository.saveContact(new Contact("Test", "User3")),
-            repository.saveContact(new Contact("Test", "User4")),
-            repository.saveContact(new Contact("Test", "User5"))
-          ], eagerError: true).then((List<Contact> results) {
-            foundContacts = results;
-            return repository.findContactByName("est user4");
-          }).then((contact) {
-            expect(contact, isNotNull);
-            expect(contact.id, foundContacts[3].id);
-          });
+
+          return bulkLoadContacts(500, repository)
+            .then((List<Contact> results) {
+              foundContacts = results;
+              return repository.findContactByName("est user424");
+            }).then((contact) {
+              expect(contact, isNotNull);
+              expect(contact.id, foundContacts[423].id);
+            });
         });  
       });
     });
