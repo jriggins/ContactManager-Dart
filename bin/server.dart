@@ -77,11 +77,12 @@ class Server {
   Future handleGetAllContacts(HttpRequest request) {
     Future result = new Future.value();
 
+    // TODO Break this out into a Contact to JSON converter
     request.response.write("[");
     var needsComma = false;
     _repository.findContacts().listen((contact) {
-      var m = { "firstName": contact.firstName };
-      var contactJson = JSON.encode(m);
+      var contactAsMap = contact.toMap();
+      var contactJson = JSON.encode(contactAsMap);
 
       if (needsComma) {
         request.response.writeln(", ");

@@ -17,4 +17,12 @@ class Contact
 
     return newContact;
   }
+  
+  Map<String, Object> toMap() {
+    return {
+      "id": id,
+      "firstName": firstName,
+      "lastName": lastName
+    };
+  }
 }

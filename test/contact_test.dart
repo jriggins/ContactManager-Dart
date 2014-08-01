@@ -34,6 +34,16 @@ void main() {
       var contact = new Contact("Test", "User");
       expect(contact.name, "Test User");
     });
+
+    test("Can export as a Map", () {
+      var contact = new Contact("Test", "User");
+      expect(contact.toMap(), {"id": null, "firstName": "Test", "lastName": "User"});
+    });
+
+    test("Can export Contact with ID as a Map", () {
+      var contact = new Contact.newContact("myID", new Contact("Test", "User"));
+      expect(contact.toMap(), {"id": "myID", "firstName": "Test", "lastName": "User"});
+    });
   });
   
   group("Repository", () {
