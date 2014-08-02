@@ -64,14 +64,41 @@ class Server {
   }
   
   Future route(HttpRequest request) {
+    Future result;
+    
     var route = "${request.method} ${request.uri.path}";
     print("Route: $route");
   
     switch(route) {
       case "GET /contact/":
-        handleGetAllContacts(request);
+        result = handleGetAllContacts(request);
         break;
+      case "POST /contact/":
+        result = handleCreateNewContact(request);
+        break;
+      default:
+        request.response.statusCode = 404;
+        result = request.response.close();
     }
+    
+    return result;
+  }
+  
+  Future handleCreateNewContact(HttpRequest request) {
+    return readContactFromRequest(request).then((contact) {
+      _repository.saveContact(contact).then((savedContact) {
+        var savedContactJson = JSON.encode(savedContact.toMap()); 
+        request.response.write(savedContactJson);
+        return request.response.close();
+      });
+    });
+  }
+  
+  Future<Contact> readContactFromRequest(HttpRequest request) {
+    return request.transform(UTF8.decoder).transform(JSON.decoder).first.then((contactMap) {
+      var contact = new Contact(contactMap['firstName'], contactMap['lastName']);
+      return contact;
+    });
   }
   
   Future handleGetAllContacts(HttpRequest request) {
