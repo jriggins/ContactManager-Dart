@@ -50,6 +50,13 @@ ArgResults _parseArgs(List<String> args) {
 }
 
 
+Future<Contact> _readContactFromRequest(Stream<List<int>> requestStream) {
+  return requestStream.transform(UTF8.decoder).transform(JSON.decoder).first.then((contactMap) {
+    var contact = new Contact(contactMap['firstName'], contactMap['lastName']);
+    return contact;
+  });
+}
+
 void getAllContacts(start.Request request) {
   request.response.add("[");
   var needsComma = false;
@@ -69,16 +76,8 @@ void getAllContacts(start.Request request) {
   });
 }
 
-
-Future<Contact> readContactFromRequest(Stream<List<int>> requestStream) {
-  return requestStream.transform(UTF8.decoder).transform(JSON.decoder).first.then((contactMap) {
-    var contact = new Contact(contactMap['firstName'], contactMap['lastName']);
-    return contact;
-  });
-}
-
 void saveNewContacts(start.Request request) {
-  readContactFromRequest(request.input).then((contact) {
+  _readContactFromRequest(request.input).then((contact) {
     _repository.saveContact(contact).then((savedContact) {
       var savedContactJson = JSON.encode(savedContact.toMap()); 
       request.response.send(savedContactJson);
@@ -86,13 +85,11 @@ void saveNewContacts(start.Request request) {
   });
 }
 
-
 void deleteAllContacts(start.Request request) {
   _repository.deleteAllContacts().then((deleteCount) {
     request.response.send(JSON.encode({"contactsDeleted": deleteCount}));
   });
 }
-
 
 void getContact(start.Request request) {
   var contactId = request.params['id'];
