@@ -68,6 +68,17 @@ void main() {
         }, test: (error) => error is! TestFailure);
       });
       
+      test("Delete All Contacts", () {
+        var contact = new Contact("Test", "User");  
+        var memoryStrategy = new MemoryStrategy();
+        var repository = new Repository(memoryStrategy);
+        bulkLoadContacts(100, repository);
+        
+        return repository.deleteAllContacts().then((contactDeletedCount) {
+          expect(contactDeletedCount, 100);
+        });          
+      });
+      
       group("Find Contact", () {
         test("By Contact ID", () {
           var memoryStrategy = new MemoryStrategy();

@@ -11,6 +11,7 @@ abstract class DbStrategy {
   Future<Contact> findContact(String contactId);
   Stream<Contact> findContacts();
   Future<Contact> findContactByName(String contactName);
+  Future<int> deleteAllContacts();
 }
 
 class MemoryStrategy implements DbStrategy {
@@ -45,6 +46,13 @@ class MemoryStrategy implements DbStrategy {
     return new Future.value(foundContact);
   }
 
+
+  @override
+  Future<int> deleteAllContacts() {
+    var contactLength = contactList.length;
+    contactList = [];
+    return new Future.value(contactLength);
+  }
 }
 
 class Repository {
@@ -68,5 +76,9 @@ class Repository {
   
   Future<Contact> findContactByName(String contactName) {
     return _dbStrategy.findContactByName(contactName);
+  }
+  
+  Future<int> deleteAllContacts() {
+    return _dbStrategy.deleteAllContacts();
   }
 }

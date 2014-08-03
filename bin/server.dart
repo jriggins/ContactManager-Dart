@@ -76,12 +76,22 @@ class Server {
       case "POST /contact/":
         result = handleCreateNewContact(request);
         break;
+      case "DELETE /contact/":
+        result = handleDeleteAllContacts(request);
+        break;
       default:
         request.response.statusCode = 404;
         result = request.response.close();
     }
     
     return result;
+  }
+  
+  Future handleDeleteAllContacts(HttpRequest request) {
+    return _repository.deleteAllContacts().then((deleteCount) {
+      request.response.write(JSON.encode({"contactsDeleted": deleteCount}));
+      return request.response.close();
+    });
   }
   
   Future handleCreateNewContact(HttpRequest request) {
