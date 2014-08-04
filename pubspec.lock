@@ -49,6 +49,13 @@ packages:
     description: path
     source: hosted
     version: "1.2.2"
+  postgresql:
+    description:
+      ref: error-handling
+      resolved-ref: "15369fe4e7321342d32d27788d34e91743e59bdc"
+      url: "git://github.com/jriggins/postgresql.git"
+    source: git
+    version: "0.2.14"
   stack_trace:
     description: stack_trace
     source: hosted

@@ -2,6 +2,7 @@ library db;
 
 import "dart:async";
 
+import "package:postgresql/postgresql.dart" as pg;
 import "package:uuid/uuid_server.dart";
 
 import "package:contactManager/model.dart";
@@ -12,6 +13,84 @@ abstract class DbStrategy {
   Stream<Contact> findContacts();
   Future<Contact> findContactByName(String contactName);
   Future<int> deleteAllContacts();
+}
+
+class PostgresStrategy implements DbStrategy {
+
+  String _dbUri;
+  
+  PostgresStrategy(String dbUri) {
+    _dbUri = dbUri;   
+  }
+
+  @override
+  Future<int> deleteAllContacts() {
+    return pg.connect(_dbUri).then((connection) {
+      return connection.execute("DELETE FROM contact").then((contactsDeleted) {
+        connection.close();
+        return contactsDeleted;
+      });
+    });
+  }
+
+  @override
+  Future<Contact> findContact(String contactId) {
+    return pg.connect(_dbUri).then((connection) {
+      return connection.query("SELECT * FROM contact where id = @id", { "id": contactId }).first.then((contactRow) {
+        var contact = new Contact.withAllFields(contactRow.id, contactRow.firstname, contactRow.lastname);
+        connection.close();
+        return contact;
+      });
+    });
+  }
+
+  @override
+  Future<Contact> findContactByName(String contactName) {
+    return pg.connect(_dbUri).then((connection) {
+      return connection.query("SELECT * FROM contact where LOWER(firstName || ' ' || lastName) = @contactName", 
+          { "contactName": contactName }).first.then((contactRow) {
+        var contact = new Contact.withAllFields(contactRow.id, contactRow.firstname, contactRow.lastname);
+        connection.close();
+        return contact;
+      });
+    });
+  }
+
+  @override
+  Stream<Contact> findContacts() {
+    StreamController streamController;
+
+    streamController = new StreamController<Contact>(
+      onListen: () {
+        pg.connect(_dbUri).then((connection) {
+          connection.query("SELECT id, firstName, lastName from contact").listen((contactRow) {
+            var contact = new Contact.withAllFields(contactRow.id, contactRow.firstname, contactRow.lastname);
+            streamController.add(contact);
+          }, 
+          onDone: () {
+            streamController.close();  
+            connection.close();
+          });
+        });
+      });
+    
+    return streamController.stream;
+  }
+
+  @override
+  Future<Contact> saveContact(Contact contact) {
+    var newContactId = new Uuid().v4();
+    var newContact = new Contact.newContact(newContactId, contact);
+
+    return pg.connect(_dbUri).then((connection) {
+      return connection.execute("INSERT INTO contact (id, firstName, lastName) VALUES (@id, @firstName, @lastName)", 
+                         { "id": newContact.id, "firstName": newContact.firstName, "lastName": newContact.lastName })
+      .then((newRowCount) {
+        connection.close();
+        return newContact;
+      });
+    });
+  }
 }
 
 class MemoryStrategy implements DbStrategy {
